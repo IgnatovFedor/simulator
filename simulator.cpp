@@ -2,6 +2,7 @@
 #include <string>
 #include <iostream>
 #include <cmath>
+#include <random>
 #ifndef _WIN32
 #include <unistd.h>
 #else
@@ -57,13 +58,20 @@ int main () {
     zmq::context_t context (1);
     zmq::socket_t socket (context, ZMQ_REQ);
     socket.connect ("tcp://localhost:5555");
+    std::random_device rd;
+    std::default_random_engine generator(rd());
+    std::normal_distribution<double> ar_dist(0.0, delta_ar);
+    std::normal_distribution<double> at_dist(0.0, delta_at);
+    std::normal_distribution<double> xy_dist(0.0, delta_xy);
+    std::normal_distribution<double> v_dist(0.0, delta_v);
 
     while (true) {
 		Measurement mes;
-		mes.x = car->x;
-		mes.y = car->y;
-		mes.vx = car->vx;
-		mes.vy = car->vy;
+		mes.x = car->x + xy_dist(generator);
+		mes.y = car->y + xy_dist(generator);
+		double v = sqrt(car->vx*car->vx+car->vy*car->vy);
+		mes.vx = car->vx + v * v_dist(generator);
+		mes.vy = car->vy + v * v_dist(generator);
 		std::cout << mes.x << "\t" << mes.y << "\t" << mes.vx << "\t" << mes.vy << std::endl;
 
 		zmq::message_t telemetry ((sizeof(struct Measurement)));
@@ -75,7 +83,7 @@ int main () {
         zmq::message_t cmd;
         socket.recv (&cmd);
         Command* com = static_cast<Command*>(cmd.data());
-        car->update(com->ar, com->at);
+        car->update(com->ar*(1+ar_dist(generator)), com->at*(1+at_dist(generator)));
 
     }
     return 0;

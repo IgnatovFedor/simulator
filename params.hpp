@@ -2,10 +2,10 @@ const double v_max = 1.0;
 const double a_r_max_plus = 1.0;
 const double a_r_max_minus = 1.0;
 const double a_t_max = 1.0;
-const double delta_ar = 0.0,
-             delta_at = 0.0,
-             delta_xy = 0.0,
-             delta_v = 0.0;
+const double delta_ar = 0.1,
+             delta_at = 0.1,
+             delta_xy = 0.1,
+             delta_v = 0.1;
 
 const double x_0 = 0.0,
              y_0 = 0.0,
